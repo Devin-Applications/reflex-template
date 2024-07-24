@@ -1,14 +1,47 @@
 from rxconfig import config
 import reflex as rx
+from typing import List, Dict
 
 docs_url = "https://reflex.dev/docs/getting-started/introduction"
 filename = f"{config.app_name}/{config.app_name}.py"
 
 # Add state and page to the app.
 
-class State(rx.State):
-    # The app state
-    pass
+class AppState(rx.State):
+    vendors: List[Dict[str, str]] = []
+
+    def register_vendor(self, form_data: Dict[str, str]):
+        self.vendors.append(form_data)
+
+    def get_vendors(self) -> List[Dict[str, str]]:
+        return self.vendors
+
+    @classmethod
+    def render_vendor_form(cls) -> rx.Component:
+        return rx.vstack(
+            rx.form(
+                rx.vstack(
+                    rx.input(name="name", placeholder="Vendor Name"),
+                    rx.input(name="contact_info", placeholder="Contact Information"),
+                    rx.input(name="address", placeholder="Address"),
+                    rx.input(name="email", placeholder="Email"),
+                    rx.input(name="phone", placeholder="Phone Number"),
+                    rx.button("Register", type="submit")
+                ),
+                on_submit=cls.register_vendor
+            )
+        )
+
+    def render_vendor_list(self) -> rx.Component:
+        if not self.get_vendors():
+            return rx.text("No vendors registered yet.")
+        return rx.vstack(
+            rx.heading("Vendor List"),
+            rx.foreach(
+                self.get_vendors(),
+                lambda vendor: rx.box(vendor.get("name", "Unknown Vendor"))
+            )
+        )
 
 def index() -> rx.Component:
     return rx.fragment(
@@ -38,7 +71,7 @@ def index() -> rx.Component:
 def health() -> rx.Component:
     return rx.text("healthy")
 
-def not_found(page_text) -> rx.Component:
+def not_found(page_text: str = "404 - Page not found") -> rx.Component:
     return rx.fragment(
         rx.color_mode_button(rx.color_mode_icon(), float="right"),
         rx.vstack(
@@ -47,3 +80,23 @@ def not_found(page_text) -> rx.Component:
             padding_top="10%",
         ),
     )
+
+def vendor_registration_page() -> rx.Component:
+    return rx.fragment(
+        rx.heading("Vendor Registration"),
+        AppState.render_vendor_form()
+    )
+
+def vendor_listing_page() -> rx.Component:
+    return rx.fragment(
+        rx.heading("Vendor List"),
+        AppState.render_vendor_list
+    )
+
+app = rx.App(state=AppState)
+app.add_page(index, route="/")
+app.add_page(health, route="/health")
+app.add_page(vendor_registration_page, route="/vendor/register")
+app.add_page(vendor_listing_page, route="/vendor/list")
+app.add_page(not_found, route="*")
+app.compile()
