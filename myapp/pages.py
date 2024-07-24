@@ -121,7 +121,7 @@ def vendor_registration_page() -> rx.Component:
         rx.color_mode_button(rx.color_mode_icon(), float="right"),
         rx.vstack(
             rx.heading("Vendor Registration", font_size="2em"),
-            AppState.render_vendor_form(),  # Call the method to return a component
+            AppState.render_vendor_form,  # Pass the method reference
             spacing="1.5em",
             padding_top="10%",
         ),
@@ -132,7 +132,7 @@ def vendor_listing_page() -> rx.Component:
         rx.color_mode_button(rx.color_mode_icon(), float="right"),
         rx.vstack(
             rx.heading("Vendor List", font_size="2em"),
-            AppState.render_vendor_list(),  # Call the method to return a component
+            AppState.render_vendor_list,  # Pass the method reference
             spacing="1.5em",
             padding_top="10%",
         ),
