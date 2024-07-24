@@ -88,14 +88,24 @@ def not_found(page_text: str = "404 - Page not found") -> rx.Component:
 
 def vendor_registration_page() -> rx.Component:
     return rx.fragment(
-        rx.heading("Vendor Registration"),
-        AppState.render_vendor_form
+        rx.color_mode_button(rx.color_mode_icon(), float="right"),
+        rx.vstack(
+            rx.heading("Vendor Registration", font_size="2em"),
+            AppState.render_vendor_form(),  # Call the method to return a component
+            spacing="1.5em",
+            padding_top="10%",
+        ),
     )
 
 def vendor_listing_page() -> rx.Component:
     return rx.fragment(
-        rx.heading("Vendor List"),
-        AppState.render_vendor_list
+        rx.color_mode_button(rx.color_mode_icon(), float="right"),
+        rx.vstack(
+            rx.heading("Vendor List", font_size="2em"),
+            AppState.render_vendor_list(),  # Call the method to return a component
+            spacing="1.5em",
+            padding_top="10%",
+        ),
     )
 
 app = rx.App(state=AppState)
