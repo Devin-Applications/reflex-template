@@ -9,9 +9,29 @@ filename = f"{config.app_name}/{config.app_name}.py"
 
 class AppState(rx.State):
     vendors: List[Dict[str, str]] = []
+    name: str = ""
+    contact_info: str = ""
+    address: str = ""
+    email: str = ""
+    phone: str = ""
 
-    def register_vendor(self, form_data: Dict[str, str]):
-        self.vendors.append(form_data)
+    def register_vendor(self):
+        new_vendor = {
+            "name": self.name,
+            "contact_info": self.contact_info,
+            "address": self.address,
+            "email": self.email,
+            "phone": self.phone
+        }
+        self.vendors.append(new_vendor)
+        self.clear_form()
+
+    def clear_form(self):
+        self.name = ""
+        self.contact_info = ""
+        self.address = ""
+        self.email = ""
+        self.phone = ""
 
     def get_vendors(self) -> List[Dict[str, str]]:
         return self.vendors
@@ -22,17 +42,14 @@ class AppState(rx.State):
 
     def render_vendor_form(self) -> rx.Component:
         return rx.vstack(
-            rx.form(
-                rx.vstack(
-                    rx.input(name="name", placeholder="Vendor Name"),
-                    rx.input(name="contact_info", placeholder="Contact Information"),
-                    rx.input(name="address", placeholder="Address"),
-                    rx.input(name="email", placeholder="Email"),
-                    rx.input(name="phone", placeholder="Phone Number"),
-                    rx.button("Register", type="submit")
-                ),
-                on_submit=self.register_vendor
-            )
+            rx.input(placeholder="Vendor Name", value=self.name, on_change=self.set_name),
+            rx.input(placeholder="Contact Information", value=self.contact_info, on_change=self.set_contact_info),
+            rx.input(placeholder="Address", value=self.address, on_change=self.set_address),
+            rx.input(placeholder="Email", value=self.email, on_change=self.set_email),
+            rx.input(placeholder="Phone Number", value=self.phone, on_change=self.set_phone),
+            rx.button("Register", on_click=self.register_vendor),
+            width="100%",
+            spacing="1em",
         )
 
     def render_vendor_list(self) -> rx.Component:
@@ -40,10 +57,23 @@ class AppState(rx.State):
             self.vendor_count == 0,
             rx.text("No vendors registered yet."),
             rx.vstack(
-                rx.heading("Vendor List"),
                 rx.foreach(
                     self.vendors,
-                    lambda vendor: rx.box(vendor.get("name", "Unknown Vendor"))
+                    lambda vendor, i: rx.box(
+                        rx.vstack(
+                            rx.text(f"Name: {vendor['name']}"),
+                            rx.text(f"Contact: {vendor['contact_info']}"),
+                            rx.text(f"Address: {vendor['address']}"),
+                            rx.text(f"Email: {vendor['email']}"),
+                            rx.text(f"Phone: {vendor['phone']}"),
+                            align_items="start",
+                            spacing="0.5em",
+                        ),
+                        padding="1em",
+                        border="1px solid #eaeaea",
+                        border_radius="5px",
+                        margin_bottom="1em",
+                    )
                 )
             )
         )
