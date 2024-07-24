@@ -16,8 +16,11 @@ class AppState(rx.State):
     def get_vendors(self) -> List[Dict[str, str]]:
         return self.vendors
 
-    @classmethod
-    def render_vendor_form(cls) -> rx.Component:
+    @rx.var
+    def vendor_count(self) -> int:
+        return len(self.vendors)
+
+    def render_vendor_form(self) -> rx.Component:
         return rx.vstack(
             rx.form(
                 rx.vstack(
@@ -28,18 +31,20 @@ class AppState(rx.State):
                     rx.input(name="phone", placeholder="Phone Number"),
                     rx.button("Register", type="submit")
                 ),
-                on_submit=cls.register_vendor
+                on_submit=self.register_vendor
             )
         )
 
     def render_vendor_list(self) -> rx.Component:
-        if not self.get_vendors():
-            return rx.text("No vendors registered yet.")
-        return rx.vstack(
-            rx.heading("Vendor List"),
-            rx.foreach(
-                self.get_vendors(),
-                lambda vendor: rx.box(vendor.get("name", "Unknown Vendor"))
+        return rx.cond(
+            self.vendor_count == 0,
+            rx.text("No vendors registered yet."),
+            rx.vstack(
+                rx.heading("Vendor List"),
+                rx.foreach(
+                    self.vendors,
+                    lambda vendor: rx.box(vendor.get("name", "Unknown Vendor"))
+                )
             )
         )
 
@@ -84,7 +89,7 @@ def not_found(page_text: str = "404 - Page not found") -> rx.Component:
 def vendor_registration_page() -> rx.Component:
     return rx.fragment(
         rx.heading("Vendor Registration"),
-        AppState.render_vendor_form()
+        AppState.render_vendor_form
     )
 
 def vendor_listing_page() -> rx.Component:
